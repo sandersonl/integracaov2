@@ -1,6 +1,6 @@
 package com.integracao;
 
-import com.integracao.Views.MainView;
+import com.integracao.views.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
