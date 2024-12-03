@@ -7,10 +7,9 @@ import com.integracaobackend.controllers.CategoryController;
 import com.integracaobackend.controllers.LineController;
 import com.integracaobackend.controllers.MeterController;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+
 
 import java.util.List;
 
@@ -24,9 +23,6 @@ public class MainViewController {
     private TitledPane titledPaneLine;
     @FXML
     private TitledPane titledPaneModel;
-    @FXML
-    private VBox layout;
-
     @FXML
     private TreeItem<String> root, lineSelected, categorySelected, meterSelected;
 
@@ -57,7 +53,6 @@ public class MainViewController {
         titledPaneLine.setContent(new HBox(new Label("Selecione uma linha"), comboBox));
         titledPaneModel.setContent(new HBox(new Label("Lista de Modelos"), treeView));
 
-        layout.setPadding(new Insets(40));
     }
 
     @FXML

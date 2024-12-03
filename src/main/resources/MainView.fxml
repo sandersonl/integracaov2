@@ -10,7 +10,11 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.control.TreeItem?>
 
-<VBox fx:id="layout" xmlns:fx="http://javafx.com/fxml" fx:controller="com.integracao.controllers.MainViewController">
+<?import javafx.geometry.Insets?>
+<VBox fx:id="layout" xmlns:fx="http://javafx.com/fxml" fx:controller="com.integracao.controllers.MainViewController" spacing="10">
+    <padding>
+        <Insets top="10" right="20" left="20" bottom="10"/>
+    </padding>
     <Label text="Autor: [Lucas]"/>
     <Separator/>
     <Accordion>
