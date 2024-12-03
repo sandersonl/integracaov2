@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.control.TreeItem?>
+
+<VBox fx:id="layout" xmlns:fx="http://javafx.com/fxml" fx:controller="com.integracao.controllers.MainViewController">
+    <Label text="Autor: [Lucas]"/>
+    <Separator/>
+    <Accordion>
+        <panes>
+            <TitledPane text="Linhas" fx:id="titledPaneLine">
+                <HBox>
+                    <ComboBox fx:id="comboBox" onAction="#populateTreeView"/>
+                </HBox>
+            </TitledPane>
+            <TitledPane text="Modelos" fx:id="titledPaneModel">
+                <HBox>
+                    <TreeView fx:id="treeView" showRoot="false">
+                        <TreeItem fx:id="root" value="root"/>
+                    </TreeView>
+                </HBox>
+            </TitledPane>
+        </panes>
+    </Accordion>
+</VBox>
