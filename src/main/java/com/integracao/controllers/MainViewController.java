@@ -1,11 +1,12 @@
 package com.integracao.controllers;
 
-import com.integracaobackend.models.LineModel;
-import com.integracaobackend.models.CategoryModel;
-import com.integracaobackend.models.MeterModel;
 import com.integracaobackend.controllers.CategoryController;
 import com.integracaobackend.controllers.LineController;
-import com.integracaobackend.controllers.MeterController;
+import com.integracaobackend.controllers.ModelController;
+import com.integracaobackend.entity.Line;
+import com.integracaobackend.entity.Category;
+import com.integracaobackend.entity.Model;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -26,9 +27,9 @@ public class MainViewController {
     @FXML
     private TreeItem<String> root, lineSelected, categorySelected, meterSelected;
 
-    private List<LineModel> lineList;
-    private List<CategoryModel> categoryList;
-    private List<MeterModel> meterList;
+    private List<Line> lineList;
+    private List<Category> categoryList;
+    private List<Model> modelList;
 
     public MainViewController() {
     }
@@ -38,11 +39,11 @@ public class MainViewController {
 
         LineController lineController = new LineController();
         CategoryController categoryController = new CategoryController();
-        MeterController meterController = new MeterController();
+        ModelController meterController = new ModelController();
 
         lineList = lineController.getAllLine();
         categoryList = categoryController.getAllCategory();
-        meterList = meterController.getAllModel();
+        modelList = meterController.getAllModel();
 
         populateComboBox();
 
@@ -63,11 +64,11 @@ public class MainViewController {
         lineSelected = makeBranch(valueSelected, root);
 
         categoryList.stream()
-                .filter(categoryModel -> categoryModel.getLineName().equals(valueSelected))
+                .filter(categoryModel -> categoryModel.getLine().getName().equals(valueSelected))
                 .forEach(categoryModel -> {
                     categorySelected = makeBranch(categoryModel.getName(), lineSelected);
-                    meterList.stream()
-                            .filter(meterModel -> meterModel.getCategoryName().equals(categoryModel.getName()))
+                    modelList.stream()
+                            .filter(meterModel -> meterModel.getCategory().getName().equals(categoryModel.getName()))
                             .forEach(meterModel -> meterSelected = makeBranch(meterModel.getName(), categorySelected));
                 });
 
@@ -77,8 +78,8 @@ public class MainViewController {
 
     @FXML
     private void populateComboBox() {
-        for (LineModel lineModel : lineList) {
-            comboBox.getItems().add(lineModel.getName());
+        for (Line line : lineList) {
+            comboBox.getItems().add(line.getName());
         }
     }
 
