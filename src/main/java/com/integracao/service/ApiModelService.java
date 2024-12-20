@@ -2,7 +2,6 @@ package com.integracao.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.integracao.dto.Line;
 import com.integracao.dto.Model;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
