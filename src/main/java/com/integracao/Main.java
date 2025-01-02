@@ -1,7 +1,7 @@
 package com.integracao;
 
-import com.integracao.views.MainView;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -9,21 +9,20 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    Stage window;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-        window = primaryStage;
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("MainView.fxml"));
+        VBox root = loader.load();
 
-        VBox layout = new VBox(20);
-        layout.getChildren().add(new MainView().createMainView());
+        Scene scene = new Scene(root, 800, 600);
 
-        Scene scene = new Scene(layout, 800, 800);
-        window.setScene(scene);
-        window.show();
+        primaryStage.setTitle("Projeto Integração V2");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
 }
