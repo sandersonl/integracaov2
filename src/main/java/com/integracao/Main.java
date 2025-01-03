@@ -16,7 +16,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(root, 800, 600);
 
-        primaryStage.setTitle("Projeto Integração V4");
+        primaryStage.setTitle("Projeto Integração V5");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
