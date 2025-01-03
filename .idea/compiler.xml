@@ -22,5 +22,8 @@
         <module name="Integracaov2-frontend" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Integracaov2-backend" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
