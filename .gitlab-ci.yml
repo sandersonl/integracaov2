@@ -1,0 +1,29 @@
+image: maven:3.9.9
+
+variables:
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - clean
+  - package
+
+clean:
+  stage: clean
+  script:
+    - echo "Running clean stage"
+    - mvn -B clean -e
+
+package:
+  stage: package
+  script:
+    - echo "Running package stage"
+    - mvn -B package -e
+
