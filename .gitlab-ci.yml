@@ -10,7 +10,6 @@ variables:
 cache:
   paths:
     - .m2/repository
-    - target/
 
 stages:
   - clean
@@ -20,11 +19,11 @@ clean:
   stage: clean
   script:
     - echo "Running clean stage"
-    - mvn clean
+    - mvn -B clean -e
 
 package:
   stage: package
   script:
     - echo "Running package stage"
-    - mvn package
+    - mvn -B package -e
 
