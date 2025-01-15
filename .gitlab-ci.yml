@@ -14,6 +14,7 @@ cache:
 stages:
   - clean
   - package
+  - deploy
 
 clean:
   stage: clean
@@ -26,4 +27,15 @@ package:
   script:
     - echo "Running package stage"
     - mvn -B package -e
+  artifacts:
+    paths:
+      - target/jfx/ProjectIntegration-1.0.exe
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Starting deploy..."
+    - mkdir -p "C:/Program Files/ProjetoIntegracao"
+    - cp target/jfx/ProjectIntegration-1.0.exe "C:/Program Files/ProjetoIntegracao/"
+    - echo "Deploy completed successfully"
 
