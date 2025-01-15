@@ -20,10 +20,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Integracaov2-frontend" />
+        <module name="Integracaov2-backend" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Integracaov2-backend" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

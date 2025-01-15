@@ -11,37 +11,42 @@ import com.integracao.dto.Category;
 import com.integracao.dto.Model;
 
 
-import java.io.IOException;
 import java.util.List;
 
 public class MainViewController {
 
     @FXML
-    private ComboBox<String> comboBox;
+    public ComboBox<String> comboBox;
     @FXML
-    private TreeView<String> treeView;
+    public TreeView<String> treeView;
     @FXML
-    private TitledPane titledPaneLine;
+    public TitledPane titledPaneLine;
     @FXML
-    private TitledPane titledPaneModel;
+    public TitledPane titledPaneModel;
     @FXML
-    private TreeItem<String> root, lineSelected, categorySelected, modelSelected;
+    public TreeItem<String> root, lineSelected, categorySelected, modelSelected;
 
-    private List<Category> categoryList;
-    private List<Line> lineList;
-    private List<Model> modelList;
+    public List<Category> categoryList;
+    public List<Line> lineList;
+    public List<Model> modelList;
+
+    public ApiLineService apiLineService;
+    public ApiCategoryService apiCategoryService;
+    public ApiModelService apiModelService;
 
     public MainViewController() {
+        this.apiLineService = new ApiLineService();
+        this.apiCategoryService = new ApiCategoryService();
+        this.apiModelService = new ApiModelService();
     }
 
     @FXML
-    public void initialize() throws IOException {
-
+    public void initialize() {
 
         try {
-            lineList = new ApiLineService().getLines("lines");
-            categoryList = new ApiCategoryService().getCategories("categories");
-            modelList = new ApiModelService().getModels("models");
+            lineList = apiLineService.getLines("lines");
+            categoryList = apiCategoryService.getCategories("categories");
+            modelList = apiModelService.getModels("models");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -50,15 +55,26 @@ public class MainViewController {
 
         treeView.setRoot(root);
 
-        if (comboBox.getValue() == null) titledPaneModel.setDisable(true);
+        titlePanedModelDisable();
 
-        titledPaneLine.setContent(new HBox(new Label("Selecione uma linha"), comboBox));
-        titledPaneModel.setContent(new HBox(new Label("Lista de Modelos"), treeView));
+        setupUi();
 
     }
 
+    public void titlePanedModelDisable() {
+        if (comboBox.getSelectionModel().getSelectedItem() == null) titledPaneModel.setDisable(true);
+    }
+
+    public void setupUi() {
+        titledPaneLine.setContent(new HBox(new Label("Selecione uma linha"), comboBox));
+        titledPaneModel.setContent(new HBox(new Label("Lista de Modelos"), treeView));
+    }
+
     @FXML
-    private void populateTreeView() {
+    public void populateTreeView() {
+        titledPaneModel.setDisable(false);
+        titledPaneModel.setExpanded(true);
+
         String valueSelected = comboBox.getValue();
         root.getChildren().clear();
 
@@ -72,19 +88,16 @@ public class MainViewController {
                             .filter(model -> model.getCategory().getName().equals(category.getName()))
                             .forEach(model -> modelSelected = makeBranch(model.getName(), categorySelected));
                 });
-
-        titledPaneModel.setDisable(false);
-        titledPaneModel.setExpanded(true);
     }
 
     @FXML
-    private void populateComboBox() {
+    public void populateComboBox() {
         for (Line line : lineList) {
             comboBox.getItems().add(line.getName());
         }
     }
 
-    private TreeItem<String> makeBranch(String name, TreeItem<String> parent) {
+    public TreeItem<String> makeBranch(String name, TreeItem<String> parent) {
         TreeItem<String> newBranch = new TreeItem<>(name);
         newBranch.setExpanded(true);
         parent.getChildren().add(newBranch);

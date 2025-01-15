@@ -10,6 +10,12 @@ public class Model {
 
     public Model(){}
 
+    public Model(int id, String name, Category category) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+    }
+
     public int getId() {
         return id;
     }
