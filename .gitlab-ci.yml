@@ -29,7 +29,7 @@ package:
     - mvn -B package -e
   artifacts:
     paths:
-      - target/jfx/ProjectIntegration-1.0.exe
+    - target/*.jar
 
 deploy:
   stage: deploy
