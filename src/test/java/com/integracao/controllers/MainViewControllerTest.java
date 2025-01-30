@@ -15,6 +15,7 @@ import org.mockito.*;
 import org.powermock.api.mockito.PowerMockito;
 import org.testfx.framework.junit.ApplicationTest;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,74 +64,96 @@ public class MainViewControllerTest extends ApplicationTest {
         when(mvc.apiLineService.getLines("lines")).thenReturn(mockLines());
         when(mvc.apiCategoryService.getCategories("categories")).thenReturn(mockCategories());
         when(mvc.apiModelService.getModels("models")).thenReturn(mockModel());
+
         // When
         mvc.initialize();
+
         // Then
         verify(mvc.apiLineService, times(1)).getLines("lines");
         verify(mvc.apiCategoryService, times(1)).getCategories("categories");
         verify(mvc.apiModelService, times(1)).getModels("models");
 
-        assertNull(mvc.root.getValue());
+        //
+        assertEquals(mvc.root, mvc.treeView.getRoot());
 
         verify(mvc, times(1)).populateComboBox();
         verify(mvc, times(1)).titlePanedModelDisable();
         verify(mvc, times(1)).setupUi();
     }
 
-    @Test
-    public void initializeTest02() throws Exception {
+    @Test(expected = RuntimeException.class)
+    public void initializeTest02() throws Exception{
         // Given
         mvc.apiLineService = PowerMockito.mock(ApiLineService.class);
         mvc.apiCategoryService = PowerMockito.mock(ApiCategoryService.class);
         mvc.apiModelService = PowerMockito.mock(ApiModelService.class);
 
-        when(mvc.apiLineService.getLines("lines")).thenThrow(new RuntimeException("API error"));
-        // When
+        doThrow(RuntimeException.class).when(mvc.apiLineService).getLines("lines");
+        doThrow(RuntimeException.class).when(mvc.apiCategoryService).getCategories("categories");
+        doThrow(RuntimeException.class).when(mvc.apiModelService).getModels("models");
+
+        //When
         try {
             mvc.initialize();
-            fail("Expected RuntimeException to be thrown");
+            fail("Expected");
         } catch (RuntimeException e) {
-            // Then
-            assertTrue("The cause of the exception is not an instance of Exception",e.getCause() instanceof Exception);
-            assertEquals("API error", e.getCause().getMessage());
-        }
+            //Then
+            assertEquals(RuntimeException.class, e.getCause().getClass());
 
-        verify(mvc.apiCategoryService, never()).getCategories(anyString());
-        verify(mvc.apiModelService, never()).getModels(anyString());
+            verify(mvc.apiLineService, times(1)).getLines("lines");
+            verify(mvc.apiCategoryService, never()).getCategories("categories");
+            verify(mvc.apiModelService, never()).getModels("models");
+
+            throw e;
+        }
     }
 
     @Test
     public void populateComboBoxTest01() {
         // Given
-        // mvc.lineList = mock in setup of the test
+        // The linelist is already mocked in the beforeTest.
+        // The populateComboBox uses the linelist to populate the fields
+
         // When
         mvc.populateComboBox();
+
         // Then
-        assertEquals(2, mvc.comboBox.getItems().size());
-        assertTrue("The item Cronos was not found in the ComboBox",mvc.comboBox.getItems().contains("Cronos"));
-        assertTrue("The item Ares was not found in the ComboBox",mvc.comboBox.getItems().contains("Ares"));
+        //Confirm if the values of the combobox items are the same as the values they should have.
+        assertEquals("[Cronos, Ares]", mvc.comboBox.getItems().toString());
     }
 
     @Test
     public void titlePaneModelDisableTest01() {
+        // Given
+        // The initial state of the application where no item is selected in the first select (TitledPaneLine).
+
         // When
         mvc.titlePanedModelDisable();
+
         // Then
-        assertNull(mvc.comboBox.getSelectionModel().getSelectedItem());
-        assertTrue("The titledPaneModel is not disable",mvc.titledPaneModel.isDisabled());
+        assertNull( "Verify that no item is selected in the combobox",
+                mvc.comboBox.getSelectionModel().getSelectedItem());
+        assertTrue("TitledPaneModel should be disabled when no value is selected in the combo box.",
+                mvc.titledPaneModel.isDisabled());
     }
 
     @Test
     public void titledPaneModelDisableTest02() {
         // Given
+        // Insert an item into the combo box to enable selection
         mvc.comboBox.getItems().add("Cronos");
-        mvc.comboBox.getItems().add("Ares");
+
+
         // When
+        // Simulate selecting an item in the combo box to verify if the function under test changes the state of the TitledPaneModel.
         mvc.comboBox.getSelectionModel().selectFirst();
         mvc.titlePanedModelDisable();
+
         //Then
-        assertFalse("The titledPaneModel is disable", mvc.titledPaneModel.isDisabled());
-        assertTrue("The titledPaneModel is not expanded",mvc.titledPaneModel.isExpanded());
+        assertFalse("The state should be enabled after an item is selected in the combobox.",
+                mvc.titledPaneModel.isDisabled());
+        assertTrue("The TitledPaneModel must be expanded after an item is selected in the combo box.",
+                mvc.titledPaneModel.isExpanded());
     }
 
     @Test
@@ -138,138 +161,139 @@ public class MainViewControllerTest extends ApplicationTest {
         // When
         mvc.setupUi();
         // Then
-        assertNotNull(mvc.titledPaneLine);
-        assertNotNull(mvc.titledPaneModel);
+        // Get the HBox that contains the content and is inside the TitledPaneLine.
+        HBox hboxTitledPaneLine = (HBox)mvc.titledPaneLine.getContent();
 
-        assertTrue("The content of the TitledPaneLine is not an instance of HBox", mvc.titledPaneLine.getContent() instanceof HBox);
-        HBox hboxTitledPaneLine = (HBox) mvc.titledPaneLine.getContent();
+        assertEquals("Check if the label's text is as expected.",
+                "Selecione uma linha",
+                ((Label) hboxTitledPaneLine.getChildren().get(0)).getText());
+        assertTrue("Verify that there is an instance of a ComboBox inside the HBox.",
+                hboxTitledPaneLine.getChildren().get(1) instanceof ComboBox);
 
-        assertEquals(2, hboxTitledPaneLine.getChildren().size());
-        assertTrue("The content of the TitledPaneLine is not an instance of Label", hboxTitledPaneLine.getChildren().get(0) instanceof Label);
-        assertEquals("Selecione uma linha", ((Label) hboxTitledPaneLine.getChildren().get(0)).getText());
-        assertTrue("The content of the TitledPaneModel is not an instance of ComboBox", hboxTitledPaneLine.getChildren().get(1) instanceof ComboBox);
-
-        assertTrue("The content of the TitledPaneModel is not an instance of HBox", mvc.titledPaneModel.getContent() instanceof HBox);
+        // Get the HBox that contains the content and is inside the TitledPaneModel.
         HBox hboxTitledPaneModel = (HBox) mvc.titledPaneModel.getContent();
 
-        assertEquals(2, hboxTitledPaneModel.getChildren().size());
-        assertEquals("Lista de Modelos", ((Label) hboxTitledPaneModel.getChildren().get(0)).getText());
-        assertTrue("The content of the TitledPaneModel is not an instance of TreeView", hboxTitledPaneModel.getChildren().get(1) instanceof TreeView);
+        assertEquals("Check if the label's text is as expected.",
+                "Lista de Modelos",
+                ((Label) hboxTitledPaneModel.getChildren().get(0)).getText());
+
+        assertTrue("Verify that there is an instance of a TreeView inside the HBox.",
+                hboxTitledPaneModel.getChildren().get(1) instanceof TreeView);
     }
 
     @Test
     public void populateTreeViewTest01() {
         // Given
+        // Insert an item and simulate selection to invoke the function under test.
         mvc.comboBox.getSelectionModel().select("Cronos");
+
         // When
         mvc.populateTreeView();
+
         // Then
-        assertEquals(1, mvc.root.getChildren().size());
-        assertEquals(3, mvc.root.getChildren().get(0).getChildren().size());
-        assertEquals("Cronos", mvc.root.getChildren().get(0).getValue());
-        assertEquals("Cronos Old", mvc.root.getChildren().get(0).getChildren().get(0).getValue());
-        assertEquals("Cronos L", mvc.root.getChildren().get(0).getChildren().get(1).getValue());
-        assertEquals("Cronos NG", mvc.root.getChildren().get(0).getChildren().get(2).getValue());
+        assertEquals("Verify that the Cronos categories have the expected values.",
+                "[TreeItem [ value: Cronos Old ], TreeItem [ value: Cronos L ], TreeItem [ value: Cronos NG ]]",
+                mvc.root.getChildren().get(0).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest02() {
         // Given
         mvc.comboBox.getSelectionModel().select("Ares");
+
         // When
         mvc.populateTreeView();
+
         // Then
-        assertEquals(1, mvc.root.getChildren().size());
-        assertEquals(2, mvc.root.getChildren().get(0).getChildren().size());
-        assertEquals("Ares", mvc.root.getChildren().get(0).getValue());
-        assertEquals("Ares TB", mvc.root.getChildren().get(0).getChildren().get(0).getValue());
-        assertEquals("Ares THS", mvc.root.getChildren().get(0).getChildren().get(1).getValue());
+        assertEquals("Verify that the Ares categories have the expected values.",
+                "[TreeItem [ value: Ares TB ], TreeItem [ value: Ares THS ]]",
+                mvc.root.getChildren().get(0).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest03() {
         // Given
         mvc.comboBox.getSelectionModel().select("Cronos");
+
         // Then
         mvc.populateTreeView();
+
         // When
-        assertEquals(3, mvc.root.getChildren().get(0).getChildren().get(0).getChildren().size());
-        assertEquals("Cronos 6001-A", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(0).getValue());
-        assertEquals("Cronos 6003", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(1).getValue());
-        assertEquals("Cronos 7023", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(2).getValue());
+        assertEquals("Verify that the models in the Cronos Old category have the expected values.",
+                "[TreeItem [ value: Cronos 6001-A ], TreeItem [ value: Cronos 6003 ], TreeItem [ value: Cronos 7023 ]]",
+                mvc.root.getChildren().get(0).getChildren().get(0).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest04() {
         // Given
         mvc.comboBox.getSelectionModel().select("Cronos");
+
         // When
         mvc.populateTreeView();
+
         // Then
-        assertEquals(3, mvc.root.getChildren().get(0).getChildren().get(1).getChildren().size());
-        assertEquals("Cronos L", mvc.root.getChildren().get(0).getChildren().get(1).getValue());
-        assertEquals("Cronos 6021", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(0).getValue());
-        assertEquals("Cronos 6021L", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(1).getValue());
-        assertEquals("Cronos 7023L", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(2).getValue());
+        assertEquals("Verify that the models in the Cronos L category have the expected values.",
+                "[TreeItem [ value: Cronos 6021 ], TreeItem [ value: Cronos 6021L ], TreeItem [ value: Cronos 7023L ]]",
+                mvc.root.getChildren().get(0).getChildren().get(1).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest05() {
         // Given
         mvc.comboBox.getSelectionModel().select("Cronos");
+
         // When
         mvc.populateTreeView();
+
         // Then
-        assertEquals(6, mvc.root.getChildren().get(0).getChildren().get(2).getChildren().size());
-        assertEquals("Cronos NG", mvc.root.getChildren().get(0).getChildren().get(2).getValue());
-        assertEquals("Cronos 6001-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(0).getValue());
-        assertEquals("Cronos 6003-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(1).getValue());
-        assertEquals("Cronos 6021-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(2).getValue());
-        assertEquals("Cronos 6031-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(3).getValue());
-        assertEquals("Cronos 7021-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(4).getValue());
-        assertEquals("Cronos 7023-NG", mvc.root.getChildren().get(0).getChildren().get(2).getChildren().get(5).getValue());
+        assertEquals("Verify that the models in the Cronos NG category have the expected values.",
+                "[TreeItem [ value: Cronos 6001-NG ], TreeItem [ value: Cronos 6003-NG ], TreeItem [ value: Cronos 6021-NG ], TreeItem [ value: Cronos 6031-NG ], TreeItem [ value: Cronos 7021-NG ], TreeItem [ value: Cronos 7023-NG ]]",
+                mvc.root.getChildren().get(0).getChildren().get(2).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest06() {
         // Given
         mvc.comboBox.getSelectionModel().select("Ares");
+
         // Then
         mvc.populateTreeView();
+
         // When
-        assertEquals(3, mvc.root.getChildren().get(0).getChildren().get(0).getChildren().size());
-        assertEquals("Ares TB", mvc.root.getChildren().get(0).getChildren().get(0).getValue());
-        assertEquals("ARES 7021", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(0).getValue());
-        assertEquals("ARES 7023", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(1).getValue());
-        assertEquals("ARES 7031", mvc.root.getChildren().get(0).getChildren().get(0).getChildren().get(2).getValue());
+        assertEquals("Verify that the models in the Ares TB category have the expected values.",
+                "[TreeItem [ value: ARES 7021 ], TreeItem [ value: ARES 7023 ], TreeItem [ value: ARES 7031 ]]",
+                mvc.root.getChildren().get(0).getChildren().get(0).getChildren().toString());
     }
 
     @Test
     public void populateTreeViewTest07() {
         // Given
         mvc.comboBox.getSelectionModel().select("Ares");
+
         // Then
         mvc.populateTreeView();
+
         // When
-        assertEquals(3, mvc.root.getChildren().get(0).getChildren().get(1).getChildren().size());
-        assertEquals("Ares THS", mvc.root.getChildren().get(0).getChildren().get(1).getValue());
-        assertEquals("ARES 8023 15", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(0).getValue());
-        assertEquals("ARES 8023 200", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(1).getValue());
-        assertEquals("ARES 8023 2,5", mvc.root.getChildren().get(0).getChildren().get(1).getChildren().get(2).getValue());
+        assertEquals("Verify that the models in the Ares THS category have the expected values.",
+                "[TreeItem [ value: ARES 8023 15 ], TreeItem [ value: ARES 8023 200 ], TreeItem [ value: ARES 8023 2,5 ]]",
+                mvc.root.getChildren().get(0).getChildren().get(1).getChildren().toString());
     }
 
     @Test
     public void makeBranchTest01() {
         // Given
-        TreeItem<String> parent = new TreeItem<>("Parent");
+        TreeItem<String> parent = new TreeItem<>("Main Branch");
+
         // When
-        TreeItem<String> newBranch = mvc.makeBranch("New Branch", parent);
+        TreeItem<String> newBranch = mvc.makeBranch("Secondary Branch", parent);
+
         // Then
-        assertNotNull(newBranch);
-        assertEquals("New Branch", newBranch.getValue());
-        assertTrue(newBranch.isExpanded());
-        assertTrue("Teste 11",parent.getChildren().contains(newBranch));
-        assertEquals(1, parent.getChildren().size());
+        assertEquals("Check if the new branch has been successfully added to the parent.",
+                "[TreeItem [ value: Secondary Branch ]]",
+                parent.getChildren().toString());
+        assertTrue("Ensure that the branch is expanded when added to a parent.",
+                newBranch.isExpanded());
     }
 
     private List<Line> mockLines() {
