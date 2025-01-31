@@ -1,15 +1,14 @@
 package com.integracao.controllers;
 
-import com.integracaobackend.controllers.CategoryController;
-import com.integracaobackend.controllers.LineController;
-import com.integracaobackend.controllers.ModelController;
-import com.integracaobackend.entity.Line;
-import com.integracaobackend.entity.Category;
-import com.integracaobackend.entity.Model;
-
+import com.integracao.service.ApiCategoryService;
+import com.integracao.service.ApiLineService;
+import com.integracao.service.ApiModelService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import com.integracao.dto.Line;
+import com.integracao.dto.Category;
+import com.integracao.dto.Model;
 
 
 import java.util.List;
@@ -17,73 +16,88 @@ import java.util.List;
 public class MainViewController {
 
     @FXML
-    private ComboBox<String> comboBox;
+    public ComboBox<String> comboBox;
     @FXML
-    private TreeView<String> treeView;
+    public TreeView<String> treeView;
     @FXML
-    private TitledPane titledPaneLine;
+    public TitledPane titledPaneLine;
     @FXML
-    private TitledPane titledPaneModel;
+    public TitledPane titledPaneModel;
     @FXML
-    private TreeItem<String> root, lineSelected, categorySelected, meterSelected;
+    public TreeItem<String> root, lineSelected, categorySelected, modelSelected;
 
-    private List<Line> lineList;
-    private List<Category> categoryList;
-    private List<Model> modelList;
+    public List<Category> categoryList;
+    public List<Line> lineList;
+    public List<Model> modelList;
+
+    public ApiLineService apiLineService;
+    public ApiCategoryService apiCategoryService;
+    public ApiModelService apiModelService;
 
     public MainViewController() {
+        this.apiLineService = new ApiLineService();
+        this.apiCategoryService = new ApiCategoryService();
+        this.apiModelService = new ApiModelService();
     }
 
     @FXML
     public void initialize() {
 
-        LineController lineController = new LineController();
-        CategoryController categoryController = new CategoryController();
-        ModelController meterController = new ModelController();
-
-        lineList = lineController.getAllLine();
-        categoryList = categoryController.getAllCategory();
-        modelList = meterController.getAllModel();
+        try {
+            lineList = apiLineService.getLines("lines");
+            categoryList = apiCategoryService.getCategories("categories");
+            modelList = apiModelService.getModels("models");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         populateComboBox();
 
         treeView.setRoot(root);
 
-        if (comboBox.getValue() == null) titledPaneModel.setDisable(true);
+        titlePanedModelDisable();
 
-        titledPaneLine.setContent(new HBox(new Label("Selecione uma linha"), comboBox));
-        titledPaneModel.setContent(new HBox(new Label("Lista de Modelos"), treeView));
+        setupUi();
 
     }
 
+    public void titlePanedModelDisable() {
+        if (comboBox.getSelectionModel().getSelectedItem() == null) titledPaneModel.setDisable(true);
+    }
+
+    public void setupUi() {
+        titledPaneLine.setContent(new HBox(new Label("Selecione uma linha"), comboBox));
+        titledPaneModel.setContent(new HBox(new Label("Lista de Modelos"), treeView));
+    }
+
     @FXML
-    private void populateTreeView() {
+    public void populateTreeView() {
+        titledPaneModel.setDisable(false);
+        titledPaneModel.setExpanded(true);
+
         String valueSelected = comboBox.getValue();
         root.getChildren().clear();
 
         lineSelected = makeBranch(valueSelected, root);
 
         categoryList.stream()
-                .filter(categoryModel -> categoryModel.getLine().getName().equals(valueSelected))
-                .forEach(categoryModel -> {
-                    categorySelected = makeBranch(categoryModel.getName(), lineSelected);
+                .filter(category -> category.getLine().getName().equals(valueSelected))
+                .forEach(category -> {
+                    categorySelected = makeBranch(category.getName(), lineSelected);
                     modelList.stream()
-                            .filter(meterModel -> meterModel.getCategory().getName().equals(categoryModel.getName()))
-                            .forEach(meterModel -> meterSelected = makeBranch(meterModel.getName(), categorySelected));
+                            .filter(model -> model.getCategory().getName().equals(category.getName()))
+                            .forEach(model -> modelSelected = makeBranch(model.getName(), categorySelected));
                 });
-
-        titledPaneModel.setDisable(false);
-        titledPaneModel.setExpanded(true);
     }
 
     @FXML
-    private void populateComboBox() {
+    public void populateComboBox() {
         for (Line line : lineList) {
             comboBox.getItems().add(line.getName());
         }
     }
 
-    private TreeItem<String> makeBranch(String name, TreeItem<String> parent) {
+    public TreeItem<String> makeBranch(String name, TreeItem<String> parent) {
         TreeItem<String> newBranch = new TreeItem<>(name);
         newBranch.setExpanded(true);
         parent.getChildren().add(newBranch);
