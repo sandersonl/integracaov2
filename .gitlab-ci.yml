@@ -33,7 +33,7 @@ package:
   stage: package
   script:
     - echo "Running package stage"
-    - mvn -B package -Dmaven.test.skip=true -e
+    - mvn -B package -DskipTests -e
   artifacts:
     paths:
     - target/jfx
