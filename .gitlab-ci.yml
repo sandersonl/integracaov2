@@ -36,13 +36,13 @@ package:
     - mvn -B package -DskipTests -e
   artifacts:
     paths:
-    - target/jfx
+    - target/jfx/native/ProjectIntegration-1.0.exe
 
 deploy:
   stage: deploy
   script:
     - echo "Starting deploy..."
-    - Copy-Item -Path "target\jfx\native\ProjectIntegration-1.0.exe" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
+    - Copy-Item -Path "target\ProjectIntegration-1.0.exe" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
     - echo "Deploy completed successfully"
   only:
     - feature/project-v5
