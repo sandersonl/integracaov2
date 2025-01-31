@@ -69,12 +69,10 @@ public class MainViewControllerTest extends ApplicationTest {
         mvc.initialize();
 
         // Then
+        // Check if all required methods are called during application initialization.
         verify(mvc.apiLineService, times(1)).getLines("lines");
         verify(mvc.apiCategoryService, times(1)).getCategories("categories");
         verify(mvc.apiModelService, times(1)).getModels("models");
-
-        //
-        assertEquals(mvc.root, mvc.treeView.getRoot());
 
         verify(mvc, times(1)).populateComboBox();
         verify(mvc, times(1)).titlePanedModelDisable();
@@ -158,6 +156,9 @@ public class MainViewControllerTest extends ApplicationTest {
 
     @Test
     public void setupUiTest01() {
+        // Given
+        // In the application's initial state, setupUi is invoked to add text and selection elements.
+
         // When
         mvc.setupUi();
         // Then
@@ -188,6 +189,8 @@ public class MainViewControllerTest extends ApplicationTest {
         mvc.comboBox.getSelectionModel().select("Cronos");
 
         // When
+        // The click is simulated, triggering the populateTreeView function,
+        // which captures the selected value from the ComboBox and creates a TreeView.
         mvc.populateTreeView();
 
         // Then
@@ -286,6 +289,7 @@ public class MainViewControllerTest extends ApplicationTest {
         TreeItem<String> parent = new TreeItem<>("Main Branch");
 
         // When
+        // Validate the child creation function for the main branch using generic values, ensuring proper attachment
         TreeItem<String> newBranch = mvc.makeBranch("Secondary Branch", parent);
 
         // Then

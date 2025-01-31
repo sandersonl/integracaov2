@@ -53,8 +53,6 @@ public class MainViewController {
 
         populateComboBox();
 
-        treeView.setRoot(root);
-
         titlePanedModelDisable();
 
         setupUi();
