@@ -37,4 +37,5 @@ deploy:
     - echo "Starting deploy..."
     - Copy-Item -Path "target\*" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
     - echo "Deploy completed successfully"
-
+  only:
+    - master
