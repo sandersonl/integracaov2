@@ -13,6 +13,7 @@ cache:
 
 stages:
   - clean
+  - test
   - package
   - deploy
 
@@ -22,11 +23,17 @@ clean:
     - echo "Running clean stage"
     - mvn -B clean -e
 
+test:
+  stage: test
+  script:
+    - echo "Running test stage"
+    - mvn -B test -e
+
 package:
   stage: package
   script:
     - echo "Running package stage"
-    - mvn -B package -e
+    - mvn -B package -Dmaven.test.skip=true -e
   artifacts:
     paths:
     - target/jfx
@@ -35,7 +42,7 @@ deploy:
   stage: deploy
   script:
     - echo "Starting deploy..."
-    - Copy-Item -Path "target\*" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
+    - Copy-Item -Path "target\jfx\native\ProjectIntegration-1.0.exe" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
     - echo "Deploy completed successfully"
   only:
-    - master
+    - feature/project-v5

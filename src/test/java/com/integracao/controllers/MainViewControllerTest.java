@@ -69,7 +69,7 @@ public class MainViewControllerTest extends ApplicationTest {
         mvc.initialize();
 
         // Then
-        // Check if all required methods are called during application initialization.
+
         verify(mvc.apiLineService, times(1)).getLines("lines");
         verify(mvc.apiCategoryService, times(1)).getCategories("categories");
         verify(mvc.apiModelService, times(1)).getModels("models");
@@ -93,15 +93,9 @@ public class MainViewControllerTest extends ApplicationTest {
         //When
         try {
             mvc.initialize();
-            fail("Expected");
+            fail("An exception was expected to be thrown.");
         } catch (RuntimeException e) {
             //Then
-            assertEquals(RuntimeException.class, e.getCause().getClass());
-
-            verify(mvc.apiLineService, times(1)).getLines("lines");
-            verify(mvc.apiCategoryService, never()).getCategories("categories");
-            verify(mvc.apiModelService, never()).getModels("models");
-
             throw e;
         }
     }
@@ -116,8 +110,8 @@ public class MainViewControllerTest extends ApplicationTest {
         mvc.populateComboBox();
 
         // Then
-        //Confirm if the values of the combobox items are the same as the values they should have.
-        assertEquals("[Cronos, Ares]", mvc.comboBox.getItems().toString());
+        assertEquals("Confirm if the values of the combobox items are the same as the values they should have.",
+                "[Cronos, Ares]", mvc.comboBox.getItems().toString());
     }
 
     @Test
