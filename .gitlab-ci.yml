@@ -14,7 +14,8 @@ cache:
 stages:
   - clean
   - package
-
+  - deploy
+  
 clean:
   stage: clean
   script:
@@ -26,4 +27,17 @@ package:
   script:
     - echo "Running package stage"
     - mvn -B package -e
+
+  artifacts:
+    paths:
+    - target/jfx
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Starting deploy..."
+    - Copy-Item -Path "target\*" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
+    - echo "Deploy completed successfully"
+  only:
+    - master
 
