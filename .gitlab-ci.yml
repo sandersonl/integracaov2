@@ -29,12 +29,12 @@ package:
     - mvn -B package -e
   artifacts:
     paths:
-    - target/*.jar
+    - target/jfx
 
 deploy:
   stage: deploy
   script:
     - echo "Starting deploy..."
-    - cp target/jfx/ProjectIntegration-1.0.exe "C:/Program Files/ProjetoIntegracao/"
+    - Copy-Item -Path "target\*" -Destination "C:\Program Files\ProjetoIntegracao\GitLab" -Recurse -Force
     - echo "Deploy completed successfully"
 
